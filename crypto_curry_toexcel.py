@@ -10,33 +10,33 @@ import os
 
 
 
-# url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
-# parameters = {
-#   'start':'1',
-#   'limit':'100',
-#   'convert':'USD'
-# }
-# headers = {
-#   'Accepts': 'application/json',
-#   'X-CMC_PRO_API_KEY': 'API-KEY',
-# }
+url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+parameters = {
+  'start':'1',
+  'limit':'100',
+  'convert':'USD'
+}
+headers = {
+  'Accepts': 'application/json',
+  'X-CMC_PRO_API_KEY': '',
+}
 
-# session = Session()
-# session.headers.update(headers)
+session = Session()
+session.headers.update(headers)
 
-# try:
-#   response = session.get(url, params=parameters)
-#   data = json.loads(response.text)
+try:
+  response = session.get(url, params=parameters)
+  data = json.loads(response.text)
   
-# except (ConnectionError, Timeout, TooManyRedirects) as e:
-#   print(e)
+except (ConnectionError, Timeout, TooManyRedirects) as e:
+  print(e)
 
 #For testing i saved the Dictionary into an pickle object to save my API-Key-Credits
-# with open('crypto_data1.pkl', 'wb') as crypto_dict:
-#     pickle.dump(data, crypto_dict)
-with open('crypto_data1.pkl', 'rb') as crypto_dict:
-    data = pickle.load(crypto_dict)
-crypto_dict.close()
+with open('crypto_data1.pkl', 'wb') as crypto_dict:
+    pickle.dump(data, crypto_dict)
+# with open('crypto_data1.pkl', 'rb') as crypto_dict:
+#     data = pickle.load(crypto_dict)
+# crypto_dict.close()
 
 coin_list_name = []
 coin_list_price = []
@@ -48,7 +48,7 @@ for i in range(0,99):
     coin_list_name.append(crypto_name)
     coin_list_price.append(crypto_price)
 
-
+    
 #building the appropriate Dictioanry to read into Dataframe
 coin_dict = {
     "Cryptocurrency": coin_list_name,
@@ -59,29 +59,34 @@ coin_dict = {
 coin_df = pd.DataFrame.from_dict(coin_dict)
 coin_df.set_index(["Cryptocurrency", "Price in USD"])
 
+
 filename_read = "Dashboard_Crypto.xlsx"
 try:
   coin_excel_df = pd.read_excel(filename_read, engine="openpyxl", index_col=None, sheet_name="Crypto_Price")
+  
   coin_excel_df["Price in USD"] = coin_df["Price in USD"]   #read from coincapmarket the latest price and overwrite it in the dataframe from the file
   coin_excel_df["Cryptocurrency"] = coin_df["Cryptocurrency"]
   
 
-  writer = pd.ExcelWriter("Dashboard_Crypto.xlsx", engine="openpyxl", mode="w",inplace=True)
-  book = openpyxl.load_workbook("Dashboard_Crypto.xlsx")
-#   writer.sheets = dict((ws.title,ws) for ws in writer.book.worksheets) 
-  coin_excel_df.to_excel(writer, sheet_name="Crypto_Price", index=False)
-  sheet = book["Crypto_Price"]
-  sheet.column_dimensions["A"].width = 100
-  sheet.column_dimensions["B"].width = 50
-  sheet.column_dimensions["C"].width = 50
-  sheet["G7"] = "Hello"
- 
+  writer = pd.ExcelWriter("Dashboard_Crypto.xlsx", engine="openpyxl", mode="w",index=False)
+  writer.book = openpyxl.load_workbook("Dashboard_Crypto.xlsx")
+  wb = openpyxl.Workbook("Dashboard_Crypto.xlsx")   #CApital Letter!!!
+  writer.sheets = dict((ws.title,ws) for ws in writer.book.worksheets) 
+  coin_excel_df.to_excel(writer, sheet_name="Crypto_Price",startcol = 0, index=False)
   writer.save()
   writer.close()
 
 except FileNotFoundError:
-  #coin_df.to_excel("Dashboard_Crypto.xlsx", engine = "openpyxl", index=False, sheet_name="Crypto_Price")
   print("Use the preperated file in the right depository")
+
+wb = openpyxl.load_workbook(filename_read)
+sheet = wb["Crypto_Price"]
+
+sheet.column_dimensions["A"].width = 20
+sheet.column_dimensions["B"].width = 20
+sheet.column_dimensions["C"].width = 20
+
+wb.save(filename_read)
 
 
 
