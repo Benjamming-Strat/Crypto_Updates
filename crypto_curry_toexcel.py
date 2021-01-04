@@ -27,7 +27,7 @@ parameters = {
 }
 headers = {
   'Accepts': 'application/json',
-  'X-CMC_PRO_API_KEY': '3559a0f0-81a8-4d39-b209-e66bdc3119e7',
+  'X-CMC_PRO_API_KEY': '',
 }
 
 session = Session()
@@ -80,7 +80,7 @@ try:
 
   writer = pd.ExcelWriter("Dashboard_Crypto.xlsx", engine="openpyxl", mode="w",index=False)
   writer.book = openpyxl.load_workbook("Dashboard_Crypto.xlsx")
-  wb = openpyxl.Workbook("Dashboard_Crypto.xlsx")   #CApital Letter!!!
+  wb = openpyxl.Workbook("Dashboard_Crypto.xlsx")   #Capital Letter!!!
   writer.sheets = dict((ws.title,ws) for ws in writer.book.worksheets)
   coin_excel_df.to_excel(writer, sheet_name="Crypto_Price",startcol = 0, index=False)
   writer.save()
